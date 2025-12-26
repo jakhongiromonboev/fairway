@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/fairway-api/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/fairway-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/fairway-api",
+  "projects": {
+    "fairway": {
+      "type": "application",
+      "root": "apps/fairway-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/fairway-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/fairway-api/tsconfig.app.json"
+      }
+    },
+    "fairway-batch": {
+      "type": "application",
+      "root": "apps/fairway-batch",
+      "entryFile": "main",
+      "sourceRoot": "apps/fairway-batch/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/fairway-batch/tsconfig.app.json"
+      }
+    }
   }
 }
