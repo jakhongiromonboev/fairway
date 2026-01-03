@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { EventStatus, EventType } from '../libs/enums/event.enum';
+import { EventLocation, EventStatus, EventType } from '../libs/enums/event.enum';
 
 const EventAvailableDateSchema = {
 	startDate: {
@@ -26,6 +26,12 @@ const EventSchema = new Schema(
 
 		eventTitle: {
 			type: String,
+			required: true,
+		},
+
+		eventLocation: {
+			type: String,
+			enum: EventLocation,
 			required: true,
 		},
 

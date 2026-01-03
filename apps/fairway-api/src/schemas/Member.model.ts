@@ -52,6 +52,15 @@ const MemberSchema = new Schema(
 			default: '',
 		},
 
+		memberAddress: {
+			type: String,
+		},
+
+		memberArticles: {
+			type: Number,
+			default: 0,
+		},
+
 		memberDesc: {
 			type: String,
 		},
@@ -77,6 +86,7 @@ const MemberSchema = new Schema(
 		agentStoreImage: {
 			type: String,
 		},
+		/** IF AGENT **/
 
 		memberProducts: {
 			type: Number,

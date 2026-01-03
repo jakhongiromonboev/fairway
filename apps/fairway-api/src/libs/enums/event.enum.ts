@@ -21,3 +21,17 @@ export enum EventStatus {
 registerEnumType(EventStatus, {
 	name: 'EventStatus',
 });
+
+export enum EventLocation {
+	SEOUL = 'SEOUL',
+	BUSAN = 'BUSAN',
+	INCHEON = 'INCHEON',
+	DAEGU = 'DAEGU',
+	GWANGJU = 'GWANGJU',
+	DAEJEON = 'DAEJEON',
+	JEJU = 'JEJU',
+}
+
+registerEnumType(EventLocation, {
+	name: 'EventLocation',
+});
