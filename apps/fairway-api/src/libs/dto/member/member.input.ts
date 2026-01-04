@@ -17,7 +17,7 @@ export class MemberInput {
 	memberPassword: string;
 
 	@IsNotEmpty()
-	@Field(() => String, { nullable: true })
+	@Field(() => String)
 	memberPhone: string;
 
 	@IsOptional()

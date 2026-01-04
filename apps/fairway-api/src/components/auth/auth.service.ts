@@ -10,7 +10,7 @@ export class AuthService {
 	constructor(private jwtService: JwtService) {}
 
 	public async hashPassword(memberPassword: string): Promise<string> {
-		const salt = bcrypt.genSalt();
+		const salt = await bcrypt.genSalt();
 		return await bcrypt.hash(memberPassword, salt);
 	}
 
