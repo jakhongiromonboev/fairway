@@ -7,6 +7,7 @@ import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Message } from '../../libs/enums/common.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { StatisticModifier, T } from '../../libs/types/common';
 
 @Injectable()
 export class MemberService {
@@ -60,5 +61,40 @@ export class MemberService {
 
 		result.accessToken = await this.authService.createToken(result); //renew token
 		return result;
+	}
+
+	public async getMember(memberId: ObjectId, targetId: ObjectId): Promise<Member> {
+		const search: T = {
+			_id: targetId,
+			memberStatus: {
+				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
+			},
+		};
+		const targetMember = await this.memberModel.findOne(search).lean().exec();
+		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		/*if(memberId){} 
+        
+        RECORD VIEW 
+        CHECK LIKE 
+        CHECK SUBSCRIPTION
+
+        */
+
+		return targetMember;
+	}
+
+	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
+		console.log('EXECUTED, STATS');
+		const { _id, targetKey, modifier } = input;
+		return await this.memberModel
+			.findByIdAndUpdate(
+				_id,
+				{
+					$inc: { [targetKey]: modifier },
+				},
+				{ new: true },
+			)
+			.exec();
 	}
 }
