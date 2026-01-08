@@ -12,6 +12,7 @@ import { MemberUpdate } from '../../libs/dto/member/member.update';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { AgentStoreInput } from '../../libs/dto/member/agent-store.input';
 
 @Resolver()
 export class MemberResolver {
@@ -66,5 +67,17 @@ export class MemberResolver {
 		console.log('Query: getMember');
 		const targetId = shapeIntoMongoObjectId(input);
 		return await this.memberService.getMember(memberId, targetId);
+	}
+
+	/** AGENT STORE **/
+	@Roles(MemberType.AGENT)
+	@UseGuards(RolesGuard)
+	@Mutation(() => Member)
+	public async completeAgentStore(
+		@Args('input') input: AgentStoreInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
+		console.log('Mutation: completeAgentStore');
+		return await this.memberService.completeAgentStore(memberId, input);
 	}
 }

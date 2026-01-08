@@ -17,5 +17,6 @@ import FollowSchema from '../../schemas/Follow.model';
 		LikeModule,
 	],
 	providers: [MemberResolver, MemberService],
+	exports: [MemberService],
 })
 export class MemberModule {}

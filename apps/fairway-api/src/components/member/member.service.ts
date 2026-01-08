@@ -15,6 +15,7 @@ import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
+import { AgentStoreInput } from '../../libs/dto/member/agent-store.input';
 
 @Injectable()
 export class MemberService {
@@ -120,6 +121,14 @@ export class MemberService {
 		return result ? [{ followingId: followingId, followerId: followerId, myFollowing: true }] : [];
 	}
 	/** FOR FOLLOW **/
+
+	/** AGENT STORE **/
+	public async completeAgentStore(memberId: ObjectId, input: AgentStoreInput): Promise<Member> {
+		const result: Member = await this.memberModel.findByIdAndUpdate(memberId, input, { new: true });
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		return result;
+	}
 
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
 		console.log('EXECUTED, STATS');
