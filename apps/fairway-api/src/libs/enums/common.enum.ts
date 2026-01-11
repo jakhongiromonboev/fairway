@@ -21,6 +21,7 @@ export enum Message {
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
 
 	STORE_INCOMPLETE = 'Please complete your store profile before adding products',
+	SIZE_REQUIRED = 'Clothing and shoes must include at least one size option',
 }
 
 export enum Direction {
