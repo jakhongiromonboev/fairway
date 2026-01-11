@@ -4,13 +4,19 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Product } from '../../libs/dto/product/product';
-import { ProductInput } from '../../libs/dto/product/product.input';
+import { Product, Products } from '../../libs/dto/product/product';
+import {
+	AgentProductsInquiry,
+	OrdinaryInquiry,
+	ProductInput,
+	ProductsInquiry,
+} from '../../libs/dto/product/product.input';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class ProductResolver {
@@ -41,6 +47,7 @@ export class ProductResolver {
 
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
+	@Mutation((returns) => Product)
 	public async updateProduct(
 		@Args('input') input: ProductUpdate,
 		@AuthMember('_id') memberId: ObjectId,
@@ -49,4 +56,57 @@ export class ProductResolver {
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.productService.updateProduct(memberId, input);
 	}
+
+	@UseGuards(WithoutGuard)
+	@Query((returns) => Products)
+	public async getProducts(
+		@Args('input') input: ProductsInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Products> {
+		console.log('Query: getProducts');
+		return await this.productService.getProducts(memberId, input);
+	}
+
+	/** Helper Function **/
+	@UseGuards(WithoutGuard)
+	@Query((returns) => [String])
+	public async getAvailableBrands(): Promise<string[]> {
+		console.log('Query: getAvailableBrands');
+		return await this.productService.getAvailableBrands();
+	}
+
+	@UseGuards(AuthGuard)
+	@Query((returns) => Products)
+	public async getFavorites(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<void> {
+		console.log('Query: getFavorites');
+		return await this.productService.getFavorites(memberId, input);
+	}
+
+	@Roles(MemberType.AGENT)
+	@UseGuards(RolesGuard)
+	@Query((returns) => Products)
+	public async getAgentProperties(
+		@Args('input') input: AgentProductsInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Products> {
+		console.log('Query: getAgentProperties');
+		return await this.productService.getAgentProperties(memberId, input);
+	}
+
+	/** LIKE **/
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => Product)
+	public async likeTargetProduct(
+		@Args('productId') input: string,
+		@AuthMember('memberId') memberId: ObjectId,
+	): Promise<Product> {
+		console.log('Mutation: likeTargetProduct');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.productService.likeTargetProduct(memberId, likeRefId);
+	}
+
+	/** ADMIN **/
 }

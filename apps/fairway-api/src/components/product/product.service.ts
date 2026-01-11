@@ -1,13 +1,18 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, type ObjectId } from 'mongoose';
-import { Product } from '../../libs/dto/product/product';
+import { Product, Products } from '../../libs/dto/product/product';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import { LikeService } from '../like/like.service';
-import { ProductInput } from '../../libs/dto/product/product.input';
+import {
+	AgentProductsInquiry,
+	OrdinaryInquiry,
+	ProductInput,
+	ProductsInquiry,
+} from '../../libs/dto/product/product.input';
 import { Member } from '../../libs/dto/member/member';
-import { Message } from '../../libs/enums/common.enum';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ProductCategory, ProductStatus } from '../../libs/enums/product.enum';
 import { ViewInput } from '../../libs/dto/view/view.input';
@@ -16,6 +21,8 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import moment from 'moment';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { skip } from 'node:test';
 
 @Injectable()
 export class ProductService {
@@ -105,6 +112,123 @@ export class ProductService {
 
 		return result;
 	}
+
+	public async getProducts(memberId: ObjectId, input: ProductsInquiry): Promise<Products> {
+		const match: T = { productStatus: ProductStatus.ACTIVE };
+		const sort: T = { [input.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+		this.shapeMatchQuery(match, input);
+		console.log('match:', match);
+
+		const result = await this.productModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							//meLiked
+							//lookUpMember
+							// { $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	private shapeMatchQuery(match: T, input: ProductsInquiry): void {
+		const { memberId, categoryList, brandList, pricesRange, text } = input.search;
+
+		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+		if (categoryList && categoryList.length) match.productCategory = { $in: categoryList };
+		if (brandList && brandList.length) match.productBrand = { $in: brandList };
+		if (pricesRange) match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+		if (text) match.productName = { $regex: new RegExp(text, 'i') };
+	}
+
+	/** Helper Function **/
+	public async getAvailableBrands(): Promise<string[]> {
+		const brands: T = await this.productModel.distinct('productBrand', { productStatus: ProductStatus.ACTIVE }).exec();
+
+		return brands.filter((brand) => brand);
+	}
+
+	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<void> {
+		//void for now! will be changed later
+		return await this.likeService.getFavoriteProducts(memberId, input);
+	}
+
+	public async getAgentProperties(memberId: ObjectId, input: AgentProductsInquiry): Promise<Products> {
+		const { productStatus } = input.search;
+		if (productStatus === ProductStatus.DELETE) {
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		}
+
+		const match: T = {
+			memberId: memberId,
+			productStatus: productStatus ?? { $ne: ProductStatus.DELETE },
+		};
+
+		const sort: T = {
+			[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+		};
+
+		const result = await this.productModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							//lookUpmember,
+							// { $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) {
+			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		}
+
+		return result[0];
+	}
+
+	/** LIKE **/
+	public async likeTargetProduct(memberId: ObjectId, likeRefId: ObjectId): Promise<Product> {
+		const target: Product = await this.productModel
+			.findOne({
+				_id: likeRefId,
+				productStatus: ProductStatus.ACTIVE,
+			})
+			.exec();
+		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.PRODUCT,
+		};
+
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.productStatsEditor({ _id: likeRefId, targetKey: 'productLikes', modifier: modifier });
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+
+		return result;
+	}
+
+	/** ADMIN **/
 
 	/** EDITOR **/
 	public async productStatsEditor(input: StatisticModifier): Promise<Product> {
