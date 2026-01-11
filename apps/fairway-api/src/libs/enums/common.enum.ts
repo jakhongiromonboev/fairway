@@ -19,6 +19,8 @@ export enum Message {
 	NOT_ALLOWED_REQUEST = 'Not Allowed Request!',
 	PROVIDE_ALLOWED_FORMAT = 'Please provide jpg, jpeg or png images!',
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
+
+	STORE_INCOMPLETE = 'Please complete your store profile before adding products',
 }
 
 export enum Direction {
