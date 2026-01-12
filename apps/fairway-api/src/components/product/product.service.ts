@@ -7,6 +7,7 @@ import { ViewService } from '../view/view.service';
 import { LikeService } from '../like/like.service';
 import {
 	AgentProductsInquiry,
+	AllProductsInquiry,
 	OrdinaryInquiry,
 	ProductInput,
 	ProductsInquiry,
@@ -229,6 +230,82 @@ export class ProductService {
 	}
 
 	/** ADMIN **/
+
+	public async getAllProductsByAdmin(memberId: ObjectId, input: AllProductsInquiry): Promise<Products> {
+		const { productCategoryList, productStatus } = input.search;
+		const match: T = {};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+		if (productStatus) match.productStatus = productStatus;
+		if (productCategoryList) match.productCategory = { $in: productCategoryList };
+
+		const result = await this.productModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							// lookupMember,
+							// { $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) {
+			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		}
+
+		return result[0];
+	}
+
+	public async updateProductByAdmin(input: ProductUpdate): Promise<Product> {
+		let { productStatus, deletedAt, soldAt } = input;
+
+		const search: T = {
+			_id: input._id,
+			productStatus: ProductStatus.ACTIVE,
+		};
+
+		if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
+		else if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
+
+		const result = await this.productModel.findOneAndUpdate(search, input, { new: true }).exec();
+
+		if (!result) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
+
+		if (soldAt || deletedAt) {
+			await this.memberService.memberStatsEditor({
+				_id: result.memberId,
+				targetKey: 'memberProducts',
+				modifier: -1,
+			});
+		}
+
+		return result;
+	}
+
+	public async removeProductByAdmin(productId: ObjectId): Promise<Product> {
+		const search: T = {
+			_id: productId,
+			productStatus: ProductStatus.DELETE,
+		};
+
+		const result = await this.productModel.findOneAndDelete(search).exec();
+
+		if (!result) {
+			throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		}
+
+		return result;
+	}
 
 	/** EDITOR **/
 	public async productStatsEditor(input: StatisticModifier): Promise<Product> {

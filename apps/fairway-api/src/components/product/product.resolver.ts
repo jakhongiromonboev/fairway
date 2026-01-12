@@ -7,6 +7,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Product, Products } from '../../libs/dto/product/product';
 import {
 	AgentProductsInquiry,
+	AllProductsInquiry,
 	OrdinaryInquiry,
 	ProductInput,
 	ProductsInquiry,
@@ -109,4 +110,36 @@ export class ProductResolver {
 	}
 
 	/** ADMIN **/
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query((returns) => Products)
+	public async getAllProductsByAdmin(
+		@Args('input') input: AllProductsInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Products> {
+		console.log('Query:getAllProductsByAdmin');
+		return await this.productService.getAllProductsByAdmin(memberId, input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation(() => Product)
+	public async updateProductByAdmin(
+		@Args('input') input: ProductUpdate,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Product> {
+		console.log('Mutation: updateProductByAdmin');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.productService.updateProductByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => Product)
+	public async removeProductByAdmin(@Args('propertId') input: string): Promise<Product> {
+		console.log('Mutation: removeProductByAdmin');
+		const productId = shapeIntoMongoObjectId(input);
+		return await this.productService.removeProductByAdmin(productId);
+	}
 }
