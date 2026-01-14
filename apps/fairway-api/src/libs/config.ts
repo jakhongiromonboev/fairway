@@ -17,6 +17,8 @@ export const availableProductSorts = [
 	'productPrice',
 ];
 
+export const availableCommentSorts = ['createdAt', 'updatedAt'];
+
 export const POPULAR_BRANDS = [
 	'Titleist',
 	'Callaway',
