@@ -132,7 +132,7 @@ export const lookupFollowerData = {
 export const lookupFavorite = {
 	$lookup: {
 		from: 'members',
-		localfield: 'favoriteProduct.memberId',
+		localField: 'favoriteProduct.memberId',
 		foreignField: '_id',
 		as: 'favoriteProduct.memberData',
 	},

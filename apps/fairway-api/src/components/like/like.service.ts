@@ -59,14 +59,14 @@ export class LikeService {
 						as: 'favoriteProduct',
 					},
 				},
-				{ $unwind: 'favoriteProduct' },
+				{ $unwind: '$favoriteProduct' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (page - 1) * limit },
 							{ $limit: limit },
 							lookupFavorite,
-							{ $unwind: 'favoriteProduct.memberData' },
+							{ $unwind: '$favoriteProduct.memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -75,7 +75,7 @@ export class LikeService {
 			.exec();
 
 		const result: Products = { list: [], metaCounter: data[0].metaCounter };
-		result.list = data[0].list.map((ele) => ele.favoriteProperty);
+		result.list = data[0].list.map((ele) => ele.favoriteProduct);
 
 		return result;
 	}

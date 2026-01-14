@@ -16,6 +16,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { AgentStoreInput } from '../../libs/dto/member/agent-store.input';
+import { lookupAuthMemberLiked } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -150,7 +151,7 @@ export class MemberService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							//like bosganmi yomi
+							lookupAuthMemberLiked(memberId, '$_id'),
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
