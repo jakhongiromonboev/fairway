@@ -102,7 +102,7 @@ export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) => {
 	};
 };
 
-export const lookUpMember = {
+export const lookupMember = {
 	$lookup: {
 		from: 'members',
 		localField: 'memberId',
@@ -126,5 +126,14 @@ export const lookupFollowerData = {
 		localField: 'followerId',
 		foreignField: '_id',
 		as: 'followerData',
+	},
+};
+
+export const lookupFavorite = {
+	$lookup: {
+		from: 'members',
+		localfield: 'favoriteProduct.memberId',
+		foreignField: '_id',
+		as: 'favoriteProduct.memberData',
 	},
 };

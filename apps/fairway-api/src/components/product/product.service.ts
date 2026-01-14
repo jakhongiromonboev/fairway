@@ -22,7 +22,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import moment from 'moment';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { skip } from 'node:test';
 
 @Injectable()
@@ -130,9 +130,9 @@ export class ProductService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							//meLiked
-							//lookUpMember
-							// { $unwind: '$memberData' },
+							lookupAuthMemberLiked(memberId),
+							lookupMember,
+							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -161,8 +161,7 @@ export class ProductService {
 		return brands.filter((brand) => brand);
 	}
 
-	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<void> {
-		//void for now! will be changed later
+	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Products> {
 		return await this.likeService.getFavoriteProducts(memberId, input);
 	}
 
@@ -190,8 +189,8 @@ export class ProductService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							//lookUpmember,
-							// { $unwind: '$memberData' },
+							lookupMember,
+							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -248,8 +247,8 @@ export class ProductService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							// lookupMember,
-							// { $unwind: '$memberData' },
+							lookupMember,
+							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},

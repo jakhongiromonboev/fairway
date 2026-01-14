@@ -81,7 +81,7 @@ export class ProductResolver {
 	public async getFavorites(
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
-	): Promise<void> {
+	): Promise<Products> {
 		console.log('Query: getFavorites');
 		return await this.productService.getFavorites(memberId, input);
 	}
