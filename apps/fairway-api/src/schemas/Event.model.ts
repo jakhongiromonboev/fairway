@@ -64,6 +64,11 @@ const EventSchema = new Schema(
 			default: 0,
 		},
 
+		eventComments: {
+			type: Number,
+			default: 0,
+		},
+
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,
