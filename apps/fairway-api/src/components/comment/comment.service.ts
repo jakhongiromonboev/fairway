@@ -10,6 +10,7 @@ import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
+import { BoardArticleService } from '../board-article/board-article.service';
 
 @Injectable()
 export class CommentService {
@@ -17,7 +18,7 @@ export class CommentService {
 		@InjectModel('Comment') private readonly commentModel: Model<Comment>,
 		private readonly memberService: MemberService,
 		private readonly productService: ProductService,
-		// private readonly boardArticleService: BoardArticleService,
+		private readonly boardArticleService: BoardArticleService,
 		// private readonly eventService:EventService
 	) {}
 
@@ -49,8 +50,15 @@ export class CommentService {
 				});
 				break;
 
+			case CommentGroup.ARTICLE:
+				await this.boardArticleService.boardArticleStatsEditor({
+					_id: input.commentRefId,
+					targetKey: 'articleComments',
+					modifier: 1,
+				});
+				break;
+
 			//EVENT
-			//ARTICLE
 		}
 
 		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);

@@ -6,6 +6,7 @@ import CommentSchema from '../../schemas/Comment.model';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import { ProductModule } from '../product/product.module';
+import { BoardArticleModule } from '../board-article/board-article.module';
 
 @Module({
 	imports: [
@@ -19,7 +20,7 @@ import { ProductModule } from '../product/product.module';
 		MemberModule,
 		ProductModule,
 		//EventModule,
-		//BoardArticleModule
+		BoardArticleModule,
 	],
 	providers: [CommentResolver, CommentService],
 })
