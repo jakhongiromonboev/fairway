@@ -1,12 +1,26 @@
 import { Schema } from 'mongoose';
-import { EventLocation, EventStatus, EventType } from '../libs/enums/event.enum';
+import { EventType, EventStatus, EventLocation } from '../libs/enums/event.enum';
 
 const EventAvailableDateSchema = {
-	startDate: {
+	date: {
 		type: Date,
+		required: true,
 	},
-	endDate: {
-		type: Date,
+	startTime: {
+		type: String,
+		required: true,
+	},
+	endTime: {
+		type: String,
+		required: true,
+	},
+	capacity: {
+		type: Number,
+		required: true,
+	},
+	booked: {
+		type: Number,
+		default: 0,
 	},
 };
 
@@ -44,9 +58,20 @@ const EventSchema = new Schema(
 			default: [],
 		},
 
+		eventPeriod: {
+			startDate: {
+				type: Date,
+				required: true,
+			},
+			endDate: {
+				type: Date,
+				required: true,
+			},
+		},
+
 		eventAvailableDates: {
 			type: [EventAvailableDateSchema],
-			default: [],
+			required: true,
 		},
 
 		eventViews: {
@@ -59,17 +84,13 @@ const EventSchema = new Schema(
 			default: 0,
 		},
 
-		eventParticipants: {
-			type: Number,
-			default: 0,
-		},
-
 		eventComments: {
 			type: Number,
 			default: 0,
 		},
 
 		memberId: {
+			//AGENT
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Member',
@@ -86,6 +107,7 @@ const EventSchema = new Schema(
 );
 
 EventSchema.index({ eventStatus: 1, eventType: 1 });
+EventSchema.index({ 'eventPeriod.startDate': 1, 'eventPeriod.endDate': 1 });
 EventSchema.index({ eventViews: -1 });
 EventSchema.index({ memberId: 1, eventTitle: 1 }, { unique: true });
 

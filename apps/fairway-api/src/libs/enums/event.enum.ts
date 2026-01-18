@@ -35,3 +35,12 @@ export enum EventLocation {
 registerEnumType(EventLocation, {
 	name: 'EventLocation',
 });
+
+export enum ReservationStatus {
+	CONFIRMED = 'CONFIRMED',
+	CANCELLED = 'CANCELLED',
+	ATTENDED = 'ATTENDED',
+}
+registerEnumType(ReservationStatus, {
+	name: 'ReservationStatus',
+});
