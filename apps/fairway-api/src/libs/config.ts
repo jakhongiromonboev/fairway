@@ -33,6 +33,9 @@ export const POPULAR_BRANDS = [
 	'Srixon',
 ];
 
+export const availableEventSorts = ['createdAt', 'updatedAt', 'eventLikes', 'eventViews'];
+export const availableReservationSorts = ['createdAt', 'updatedAt', 'participationDate'];
+
 /** ME - LIKED **/
 
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '_id') => {
