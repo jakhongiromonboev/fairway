@@ -5,7 +5,7 @@ import { Event, Events } from '../../libs/dto/event/event';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import { LikeService } from '../like/like.service';
-import { EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
+import { AllEventsInquiry, EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -228,5 +228,130 @@ export class EventService {
 				},
 			)
 			.exec();
+	}
+
+	public async getAgentEvents(memberId: ObjectId, input: EventsInquiry): Promise<Events> {
+		const { eventType } = input.search;
+		const match: T = {
+			memberId: memberId,
+			eventStatus: { $ne: EventStatus.DELETE },
+		};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+		if (eventType) match.eventType = eventType;
+
+		const result = await this.eventModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	public async likeTargetEvent(memberId: ObjectId, likeRefId: ObjectId): Promise<Event> {
+		const target: Event = await this.eventModel.findOne({
+			_id: likeRefId,
+			eventStatus: { $ne: EventStatus.DELETE },
+		});
+		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.EVENT,
+		};
+
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.eventStatsEditor({
+			_id: likeRefId,
+			targetKey: 'eventLikes',
+			modifier: modifier,
+		});
+
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+
+		return result;
+	}
+
+	/** ADMIN **/
+
+	public async getAllEventsByAdmin(input: AllEventsInquiry): Promise<Events> {
+		const { eventStatus, eventType } = input.search;
+		const match: T = {};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+		if (eventStatus) match.eventStatus = eventStatus;
+		if (eventType) match.eventType = eventType;
+
+		const result = await this.eventModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	public async updateEventByAdmin(input: EventUpdate): Promise<Event> {
+		const { _id, eventStatus } = input;
+
+		const search: T = {
+			_id: _id,
+			eventStatus: { $ne: EventStatus.DELETE },
+		};
+
+		const result = await this.eventModel.findOneAndUpdate(search, input, { new: true }).exec();
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		if (eventStatus === EventStatus.DELETE) {
+			await this.memberService.memberStatsEditor({
+				_id: result.memberId,
+				targetKey: 'memberEvents',
+				modifier: -1,
+			});
+		}
+
+		return result;
+	}
+
+	public async removeEventByAdmin(eventId: ObjectId): Promise<Event> {
+		const search: T = {
+			_id: eventId,
+			eventStatus: EventStatus.DELETE,
+		};
+
+		const result = await this.eventModel.findOneAndDelete(search).exec();
+		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+		return result;
 	}
 }

@@ -89,12 +89,12 @@ export class ProductResolver {
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
 	@Query((returns) => Products)
-	public async getAgentProperties(
+	public async getAgentProducts(
 		@Args('input') input: AgentProductsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Products> {
 		console.log('Query: getAgentProperties');
-		return await this.productService.getAgentProperties(memberId, input);
+		return await this.productService.getAgentProducts(memberId, input);
 	}
 
 	/** LIKE **/
