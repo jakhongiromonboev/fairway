@@ -22,6 +22,9 @@ export enum Message {
 
 	STORE_INCOMPLETE = 'Please complete your store profile before adding products',
 	SIZE_REQUIRED = 'Clothing and shoes must include at least one size option',
+
+	INVALID_DATE_RANGE = 'Event start date must be before end date',
+	EVENT_HAS_ACTIVE_BOOKINGS = 'Cannot update event details when active bookings exist',
 }
 
 export enum Direction {
