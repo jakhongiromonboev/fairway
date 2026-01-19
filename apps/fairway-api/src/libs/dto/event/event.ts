@@ -48,6 +48,9 @@ export class Event {
 	@Field(() => EventLocation)
 	eventLocation: EventLocation;
 
+	@Field(() => String)
+	eventAddress: string;
+
 	@Field(() => String, { nullable: true })
 	eventDesc?: string;
 

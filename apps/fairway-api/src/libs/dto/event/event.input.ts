@@ -31,6 +31,11 @@ export class EventInput {
 	@Field(() => EventLocation)
 	eventLocation: EventLocation;
 
+	@IsNotEmpty()
+	@Length(5, 200)
+	@Field(() => String)
+	eventAddress: string;
+
 	@IsOptional()
 	@Length(3, 500)
 	@Field(() => String, { nullable: true })

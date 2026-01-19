@@ -22,5 +22,6 @@ import { LikeModule } from '../like/like.module';
 		LikeModule,
 	],
 	providers: [BoardArticleResolver, BoardArticleService],
+	exports: [BoardArticleService],
 })
 export class BoardArticleModule {}

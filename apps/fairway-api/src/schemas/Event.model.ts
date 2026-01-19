@@ -49,6 +49,11 @@ const EventSchema = new Schema(
 			required: true,
 		},
 
+		eventAddress: {
+			type: String,
+			required: true,
+		},
+
 		eventDesc: {
 			type: String,
 		},

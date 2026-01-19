@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { EventStatus } from '../../enums/event.enum';
+import { EventLocation, EventStatus } from '../../enums/event.enum';
 import type { ObjectId } from 'mongoose';
 
 @InputType()
@@ -28,6 +28,15 @@ export class EventUpdate {
 	@Length(3, 100)
 	@Field(() => String, { nullable: true })
 	eventTitle?: string;
+
+	@IsOptional()
+	@Field(() => EventLocation, { nullable: true })
+	eventLocation: EventLocation;
+
+	@IsOptional()
+	@Length(5, 200)
+	@Field(() => String, { nullable: true })
+	eventAddress?: string;
 
 	@IsOptional()
 	@Length(3, 500)
