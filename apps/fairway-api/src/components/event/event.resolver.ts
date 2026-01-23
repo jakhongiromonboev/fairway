@@ -5,7 +5,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UseGuards } from '@nestjs/common';
 import { Event, Events } from '../../libs/dto/event/event';
-import { AllEventsInquiry, EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
+import { AllEventsInquiry, EventInput, EventsInquiry, OrdinaryInquiry } from '../../libs/dto/event/event.input';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
@@ -71,6 +71,16 @@ export class EventResolver {
 	): Promise<Events> {
 		console.log('Query: getAgentEvents');
 		return await this.eventService.getAgentEvents(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Query((returns) => Events)
+	public async getFavoriteEvents(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Events> {
+		console.log('Query: getFavoriteEvents');
+		return await this.eventService.getFavoriteEvents(memberId, input);
 	}
 
 	/** LIKE **/

@@ -5,7 +5,7 @@ import { Event, Events } from '../../libs/dto/event/event';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import { LikeService } from '../like/like.service';
-import { AllEventsInquiry, EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
+import { AllEventsInquiry, EventInput, EventsInquiry, OrdinaryInquiry } from '../../libs/dto/event/event.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -261,6 +261,10 @@ export class EventService {
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
+	}
+
+	public async getFavoriteEvents(memberId: ObjectId, input: OrdinaryInquiry): Promise<Events> {
+		return await this.likeService.getFavoriteEvents(memberId, input);
 	}
 
 	public async likeTargetEvent(memberId: ObjectId, likeRefId: ObjectId): Promise<Event> {
