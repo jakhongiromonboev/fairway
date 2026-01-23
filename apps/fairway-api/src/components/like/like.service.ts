@@ -8,7 +8,8 @@ import { Message } from '../../libs/enums/common.enum';
 import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
 import { Products } from '../../libs/dto/product/product';
 import { LikeGroup } from '../../libs/enums/like.enum';
-import { lookupFavorite } from '../../libs/config';
+import { lookupFavorite, lookupFavoriteEvent } from '../../libs/config';
+import { Events } from '../../libs/dto/event/event';
 
 @Injectable()
 export class LikeService {
@@ -80,9 +81,38 @@ export class LikeService {
 		return result;
 	}
 
-	/** TODO:
+	public async getFavoriteEvents(memberId: ObjectId, input: OrdinaryInquiry): Promise<Events> {
+		const { page, limit } = input;
+		const match: T = { likeGroup: LikeGroup.EVENT, memberId: memberId };
 
-	 * getFavouriteEvents
+		const data: T = await this.likeModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: { updatedAt: -1 } },
+				{
+					$lookup: {
+						from: 'events',
+						localField: 'likeRefId',
+						foreignField: '_id',
+						as: 'favoriteEvent',
+					},
+				},
+				{ $unwind: '$favoriteEvent' },
+				{
+					$facet: {
+						list: [
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
+							lookupFavoriteEvent,
+							{ $unwind: '$favoriteEvent.memberData' },
+						],
+					},
+				},
+			])
+			.exec();
 
-	 *  **/
+		const result: Events = { list: [], metaCounter: data[0].metaCounter };
+		result.list = data[0].list.map((ele) => ele.favoriteEvent);
+		return result;
+	}
 }

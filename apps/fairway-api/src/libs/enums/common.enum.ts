@@ -25,6 +25,11 @@ export enum Message {
 
 	INVALID_DATE_RANGE = 'Event start date must be before end date',
 	EVENT_HAS_ACTIVE_BOOKINGS = 'Cannot update event details when active bookings exist',
+
+	RESERVATION_DATE_NOT_AVAILABLE = 'Selected date is not available for this event',
+	RESERVATION_INSUFFICIENT_CAPACITY = 'Not enough spots remaining for this date',
+	RESERVATION_NOT_FOUND = 'Reservation not found',
+	RESERVATION_ALREADY_CANCELLED = 'Reservation is already cancelled',
 }
 
 export enum Direction {
