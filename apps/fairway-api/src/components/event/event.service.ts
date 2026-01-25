@@ -5,7 +5,7 @@ import { Event, Events } from '../../libs/dto/event/event';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import { LikeService } from '../like/like.service';
-import { AllEventsInquiry, EventInput, EventsInquiry, OrdinaryInquiry } from '../../libs/dto/event/event.input';
+import { AllEventsInquiry, EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -16,6 +16,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { EventUpdate } from '../../libs/dto/event/event.update';
+import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
 
 @Injectable()
 export class EventService {

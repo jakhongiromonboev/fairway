@@ -5,13 +5,14 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UseGuards } from '@nestjs/common';
 import { Event, Events } from '../../libs/dto/event/event';
-import { AllEventsInquiry, EventInput, EventsInquiry, OrdinaryInquiry } from '../../libs/dto/event/event.input';
+import { AllEventsInquiry, EventInput, EventsInquiry } from '../../libs/dto/event/event.input';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { EventUpdate } from '../../libs/dto/event/event.update';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
 
 @Resolver()
 export class EventResolver {

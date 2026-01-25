@@ -11,8 +11,11 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
 import { AgentStoreInput } from '../../libs/dto/member/agent-store.input';
+import { GraphQLUpload, FileUpload } from 'graphql-upload';
+import { Message } from '../../libs/enums/common.enum';
+import { uploadToCloudinary } from '../../libs/utils/cloudinary-uploader';
 
 @Resolver()
 export class MemberResolver {
@@ -119,5 +122,63 @@ export class MemberResolver {
 	public async updateMemberByAdmin(@Args('input') input: MemberUpdate): Promise<Member> {
 		console.log('Mutation: updateMemberByAdmin');
 		return await this.memberService.updateMemberByAdmin(input); //CALL
+	}
+
+	/** UPLOADER **/
+	@UseGuards(AuthGuard)
+	@Mutation(() => String)
+	public async imageUploader(
+		@Args({ name: 'file', type: () => GraphQLUpload })
+		{ createReadStream, filename, mimetype }: FileUpload,
+		@Args('target') target: string,
+	): Promise<string> {
+		console.log('Mutation: imageUploader');
+
+		if (!filename) throw new Error(Message.UPLOAD_FAILED);
+		const validMime = validMimeTypes.includes(mimetype);
+		if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+
+		const imageName = getSerialForImage(filename);
+		const stream = createReadStream();
+
+		try {
+			const url = await uploadToCloudinary(stream, target, imageName);
+			return url;
+		} catch (error) {
+			console.error('Upload error:', error);
+			throw new Error(Message.UPLOAD_FAILED);
+		}
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => [String])
+	public async imagesUploader(
+		@Args('files', { type: () => [GraphQLUpload] })
+		files: Promise<FileUpload>[],
+		@Args('target') target: string,
+	): Promise<string[]> {
+		console.log('Mutation: imagesUploader');
+		const uploadedImages = [];
+
+		const promisedList = files.map(async (img: Promise<FileUpload>, index: number) => {
+			try {
+				const { filename, mimetype, createReadStream } = await img;
+				console.log(`Processing file ${index + 1}:`, filename);
+
+				const validMime = validMimeTypes.includes(mimetype);
+				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+
+				const imageName = getSerialForImage(filename);
+				const stream = createReadStream();
+				const url = await uploadToCloudinary(stream, target, imageName);
+
+				uploadedImages[index] = url;
+			} catch (err) {
+				console.log('Error, imagesUploader:', err);
+			}
+		});
+
+		await Promise.all(promisedList);
+		return uploadedImages;
 	}
 }
