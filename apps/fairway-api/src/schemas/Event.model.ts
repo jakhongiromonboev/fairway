@@ -94,6 +94,11 @@ const EventSchema = new Schema(
 			default: 0,
 		},
 
+		eventRank: {
+			type: Number,
+			default: 0,
+		},
+
 		memberId: {
 			//AGENT
 			type: Schema.Types.ObjectId,
