@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
-import { ProductCategory, ProductStatus } from '../../enums/product.enum';
+import { ProductCategory, ProductGender, ProductStatus } from '../../enums/product.enum';
 
 @ObjectType()
 export class Product {
@@ -32,6 +32,9 @@ export class Product {
 
 	@Field(() => [String])
 	productSizes: string[];
+
+	@Field(() => ProductGender, { nullable: true })
+	productGender?: ProductGender;
 
 	@Field(() => String, { nullable: true })
 	productBrand?: string;

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ProductCategory, ProductStatus } from '../libs/enums/product.enum';
+import { ProductCategory, ProductGender, ProductStatus } from '../libs/enums/product.enum';
 
 const ProductSchema = new Schema(
 	{
@@ -42,6 +42,12 @@ const ProductSchema = new Schema(
 		productSizes: {
 			type: [String],
 			default: [],
+		},
+
+		productGender: {
+			type: String,
+			enum: ProductGender,
+			required: false,
 		},
 
 		productBrand: {

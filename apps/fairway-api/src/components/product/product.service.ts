@@ -45,6 +45,9 @@ export class ProductService {
 			if (!input.productSizes || input.productSizes.length === 0) {
 				throw new BadRequestException(Message.SIZE_REQUIRED);
 			}
+			if (!input.productGender) {
+				throw new BadRequestException(Message.GENDER_REQUIRED);
+			}
 		}
 
 		try {
@@ -145,11 +148,12 @@ export class ProductService {
 	}
 
 	private shapeMatchQuery(match: T, input: ProductsInquiry): void {
-		const { memberId, categoryList, brandList, pricesRange, text } = input.search;
+		const { memberId, categoryList, brandList, genderList, pricesRange, text } = input.search;
 
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (categoryList && categoryList.length) match.productCategory = { $in: categoryList };
 		if (brandList && brandList.length) match.productBrand = { $in: brandList };
+		if (genderList && genderList.length) match.productGender = { $in: genderList };
 		if (pricesRange) match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (text) match.productName = { $regex: new RegExp(text, 'i') };
 	}

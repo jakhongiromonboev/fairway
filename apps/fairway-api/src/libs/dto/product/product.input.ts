@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { ProductCategory, ProductStatus } from '../../enums/product.enum';
+import { ProductCategory, ProductGender, ProductStatus } from '../../enums/product.enum';
 import type { ObjectId } from 'mongoose';
 import { availableProductSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -33,6 +33,10 @@ export class ProductInput {
 	@Field(() => Int, { nullable: true })
 	@Min(0)
 	productQuantity?: number;
+
+	@IsOptional()
+	@Field(() => ProductGender, { nullable: true })
+	productGender?: ProductGender;
 
 	@IsOptional()
 	@Field(() => [String], { nullable: true })
@@ -71,6 +75,10 @@ class PISearch {
 	@IsOptional()
 	@Field(() => PricesRange, { nullable: true })
 	pricesRange?: PricesRange;
+
+	@IsOptional()
+	@Field(() => [ProductGender], { nullable: true })
+	genderList?: ProductGender[];
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })

@@ -24,3 +24,13 @@ export enum ProductStatus {
 registerEnumType(ProductStatus, {
 	name: 'ProductStatus',
 });
+
+export enum ProductGender {
+	MEN = 'MEN',
+	WOMEN = 'WOMEN',
+	UNISEX = 'UNISEX',
+}
+
+registerEnumType(ProductGender, {
+	name: 'ProductGender',
+});

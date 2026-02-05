@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import type { ObjectId } from 'mongoose';
-import { ProductStatus } from '../../enums/product.enum';
+import { ProductGender, ProductStatus } from '../../enums/product.enum';
 
 @InputType()
 export class ProductUpdate {
@@ -36,6 +36,10 @@ export class ProductUpdate {
 	@Min(0)
 	@Field(() => Int, { nullable: true })
 	productQuantity?: number;
+
+	@IsOptional()
+	@Field(() => ProductGender, { nullable: true })
+	productGender?: ProductGender;
 
 	@IsOptional()
 	@Field(() => [String], { nullable: true })
