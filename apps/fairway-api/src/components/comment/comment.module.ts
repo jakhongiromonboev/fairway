@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import { ProductModule } from '../product/product.module';
 import { BoardArticleModule } from '../board-article/board-article.module';
+import { EventModule } from '../event/event.module';
 
 @Module({
 	imports: [
@@ -19,7 +20,7 @@ import { BoardArticleModule } from '../board-article/board-article.module';
 		AuthModule,
 		MemberModule,
 		ProductModule,
-		//EventModule,
+		EventModule,
 		BoardArticleModule,
 	],
 	providers: [CommentResolver, CommentService],

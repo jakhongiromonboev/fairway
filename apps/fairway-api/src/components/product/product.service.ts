@@ -23,7 +23,6 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import moment from 'moment';
 import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
-import { skip } from 'node:test';
 
 @Injectable()
 export class ProductService {

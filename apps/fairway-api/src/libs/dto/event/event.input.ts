@@ -68,6 +68,10 @@ export class EventInput {
 @InputType()
 class EISearch {
 	@IsOptional()
+	@Field(() => EventStatus, { nullable: true })
+	eventStatus?: EventStatus;
+
+	@IsOptional()
 	@Field(() => EventType, { nullable: true })
 	eventType?: EventType;
 

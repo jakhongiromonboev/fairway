@@ -102,9 +102,9 @@ export class ProductResolver {
 	@Mutation((returns) => Product)
 	public async likeTargetProduct(
 		@Args('productId') input: string,
-		@AuthMember('memberId') memberId: ObjectId,
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Product> {
-		console.log('Mutation: likeTargetProduct');
+		console.log(memberId);
 		const likeRefId = shapeIntoMongoObjectId(input);
 		return await this.productService.likeTargetProduct(memberId, likeRefId);
 	}

@@ -232,10 +232,10 @@ export class EventService {
 	}
 
 	public async getAgentEvents(memberId: ObjectId, input: EventsInquiry): Promise<Events> {
-		const { eventType } = input.search;
+		const { eventType, eventStatus } = input.search;
 		const match: T = {
 			memberId: memberId,
-			eventStatus: { $ne: EventStatus.DELETE },
+			eventStatus: eventStatus ?? { $ne: EventStatus.DELETE },
 		};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
