@@ -114,6 +114,28 @@ export class FairwayBatchService {
 		console.log(`Batch Top Agents completed: ${agents.length} agents ranked`);
 	}
 
+	public async batchSyncEventStatuses(): Promise<void> {
+		const now = new Date();
+
+		const toActive = await this.eventModel.updateMany(
+			{
+				eventStatus: EventStatus.UPCOMING,
+				'eventPeriod.startDate': { $lte: now },
+				'eventPeriod.endDate': { $gte: now },
+			},
+			{ $set: { eventStatus: EventStatus.ACTIVE } },
+		);
+
+		const toEnded = await this.eventModel.updateMany(
+			{
+				eventStatus: { $in: [EventStatus.ACTIVE, EventStatus.UPCOMING] },
+				'eventPeriod.endDate': { $lt: now },
+			},
+			{ $set: { eventStatus: EventStatus.ENDED } },
+		);
+		console.log(`Batch Sync Event Statuses: ${toActive.modifiedCount} → ACTIVE, ${toEnded.modifiedCount} → ENDED`);
+	}
+
 	getHello(): string {
 		return 'Welcome to Fairway Batch Server!';
 	}

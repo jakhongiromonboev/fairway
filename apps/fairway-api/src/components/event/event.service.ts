@@ -113,7 +113,7 @@ export class EventService {
 	public async getEvents(memberId: ObjectId, input: EventsInquiry): Promise<Events> {
 		const { eventType, eventLocation, text } = input.search;
 		const match: T = {
-			eventStatus: { $ne: EventStatus.DELETE },
+			eventStatus: input.search.eventStatus ?? { $ne: EventStatus.DELETE },
 		};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 

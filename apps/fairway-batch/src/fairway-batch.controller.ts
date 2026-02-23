@@ -1,7 +1,13 @@
 import { Controller, Get, Logger } from '@nestjs/common';
 import { FairwayBatchService } from './fairway-batch.service';
 import { Cron, Timeout } from '@nestjs/schedule';
-import { BATCH_ROLLBACK, BATCH_TOP_AGENTS, BATCH_TOP_EVENTS, BATCH_TOP_PRODUCTS } from './lib/config';
+import {
+	BATCH_ROLLBACK,
+	BATCH_SYNC_EVENT_STATUSES,
+	BATCH_TOP_AGENTS,
+	BATCH_TOP_EVENTS,
+	BATCH_TOP_PRODUCTS,
+} from './lib/config';
 
 @Controller()
 export class FairwayBatchController {
@@ -53,6 +59,18 @@ export class FairwayBatchController {
 			this.logger['context'] = BATCH_TOP_AGENTS;
 			this.logger.debug('EXECUTED');
 			await this.batchService.batchTopAgents();
+		} catch (err) {
+			this.logger.error(err);
+		}
+	}
+
+	/** EVENT STATUS **/
+	@Cron('0 * * * * ', { name: BATCH_SYNC_EVENT_STATUSES })
+	public async batchSyncEventStatuses() {
+		try {
+			this.logger['context'] = BATCH_SYNC_EVENT_STATUSES;
+			this.logger.debug('EXECUTED');
+			await this.batchService.batchSyncEventStatuses();
 		} catch (err) {
 			this.logger.error(err);
 		}
