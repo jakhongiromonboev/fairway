@@ -40,7 +40,6 @@ export class MemberUpdate {
 	memberPassword?: string;
 
 	@IsOptional()
-	@Length(3, 100)
 	@Field(() => String, { nullable: true })
 	memberFullName?: string;
 
