@@ -56,7 +56,7 @@ export class EventReservationService {
 
 			return result;
 		} catch (err) {
-			console.log('Error, EventReservationService.createReservation');
+			console.log('Error, EventReservationService.createReservation', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
