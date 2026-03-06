@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   fairway-api:
     container_name: fairway-api
